@@ -89,6 +89,12 @@ summary::before{content:"+ ";display:inline-block;width:1em}
 details[open] summary::before{content:"− "}
 details > div{padding-top:8px}
 pre{font-family:var(--mono);font-size:13px;line-height:1.5;background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:3px;margin:0 0 16px;overflow-x:auto;max-width:100%}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}
+.toc a{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--line);border-radius:3px;text-decoration:none;font-size:15px;font-weight:600;background:var(--paper)}
+.toc a:hover{border-color:var(--copper)}
+.toc a span{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--paper);background:var(--copper);border-radius:2px;padding:1px 6px}
+.group-title{font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--copper);margin:40px 0 0;padding-top:4px}
+.group-title + .project,.group-title + .minor{border-top:0;padding-top:10px}
 .code-link{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;font-weight:600;color:var(--copper);text-decoration:none;border-bottom:1.5px solid var(--copper);padding-bottom:1px}
 .code-link:hover{color:var(--ink)}
 .code-link svg{width:18px;height:18px;fill:currentColor;flex:none}
@@ -144,7 +150,15 @@ footer{max-width:820px;margin:0 auto;padding:20px 20px 40px 44px;font-size:14px;
 
 <section id="projets">
   <h2><span class="via" aria-hidden="true"></span>Projets</h2>
+  <nav class="toc" aria-label="Domaines des projets">
+    <a href="#embarque">Systèmes embarqués et numérique<span>4</span></a>
+    <a href="#energie">Énergie et réseaux électriques<span>1</span></a>
+    <a href="#recherche">Recherche<span>1</span></a>
+    <a href="#automatisation">Automatisation et données<span>1</span></a>
+    <a href="#electronique">Électronique et radiofréquence<span>3</span></a>
+  </nav>
 
+  <h3 class="group-title" id="embarque">Systèmes embarqués et numérique</h3>
   <article class="project">
     <h3>Programmation temps réel avec FreeRTOS sur STM32</h3>
     <p class="ctx">BUT GEII, 3<sup>e</sup> année, série de TP en binôme (2024–2025)</p>
@@ -181,6 +195,31 @@ footer{max-width:820px;margin:0 auto;padding:20px 20px 40px 44px;font-size:14px;
     </details>
     <a class="code-link" href="https://github.com/KayilanM/projet-FreeRTOS" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Voir le code sur GitHub</a>
     <ul class="tags"><li>C</li><li>FreeRTOS</li><li>STM32CubeIDE</li><li>UART</li><li>Interruptions</li><li>Mutex et sémaphores</li></ul>
+  </article>
+
+  <article class="project">
+    <h3>Pilotage d’un afficheur LCD sur STM32</h3>
+    <p class="ctx">BUT GEII, TP sur carte Nucleo-F401RE</p>
+    <p>J’ai écrit, sans bibliothèque toute faite, le pilote d’un afficheur LCD 2 × 16 caractères (contrôleur HD44780) en mode 4 bits : chaque octet est envoyé en deux quartets, ce qui économise quatre broches du microcontrôleur.</p>
+    <ul>
+      <li>Séquence d’initialisation imposée par le contrôleur pour passer en mode 4 bits.</li>
+      <li>Distinction entre commandes et caractères avec la ligne RS, validation des données par une impulsion sur EN.</li>
+      <li>Fonctions d’affichage d’un caractère et d’une chaîne, et accès direct aux registres du port GPIO.</li>
+    </ul>
+    <details>
+      <summary>Voir le code d’envoi d’un quartet</summary>
+      <div>
+<pre><code>static void lcd_write_nibble(uint8_t nibble)
+{
+    const uint32_t bits = nibble &amp; LCD_DATA_MASK;     /* D4..D7 = PA4..PA7 */
+    GPIOA-&gt;BSRR = ((LCD_DATA_MASK &amp; ~bits) &lt;&lt; 16) | bits;
+    WriteEnable();
+}</code></pre>
+        <p>Le registre BSRR met certaines broches à 1 et d’autres à 0 en une seule écriture, sans toucher au reste du port.</p>
+      </div>
+    </details>
+    <a class="code-link" href="https://github.com/KayilanM/projet-STM32-afficheur-LCD" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Voir le code sur GitHub</a>
+    <ul class="tags"><li>C</li><li>STM32</li><li>Registres GPIO</li><li>HD44780</li></ul>
   </article>
 
   <article class="project">
@@ -236,6 +275,25 @@ Q_mem &lt;= AC_interne when store = '1' else (others =&gt; 'Z');  -- sortie troi
     <ul class="tags"><li>C/C++</li><li>UWB</li><li>Boussole</li><li>Tests de validation</li><li>Travail en équipe</li></ul>
   </article>
 
+
+  <h3 class="group-title" id="energie">Énergie et réseaux électriques</h3>
+  <article class="project">
+    <h3>Raccordement électrique d’une ligne de bus à haut niveau de service</h3>
+    <p class="ctx">Enedis, chargé de projets branchement en alternance, pendant plus d’un an (2024–2025)</p>
+    <p>J’ai piloté en binôme le raccordement au réseau de distribution des équipements d’une nouvelle ligne de bus électrique : abris-bus, caméras de vidéosurveillance et borne de recharge pour véhicule électrique. Au total, 24 dossiers de raccordement suivis en parallèle pour une collectivité.</p>
+    <ul>
+      <li>Pré-études sur la cartographie du réseau, puis sur le terrain avec le client et l’entreprise prestataire, pour vérifier la faisabilité de chaque raccordement.</li>
+      <li>Création des dossiers et des devis, commande et validation des études techniques selon la norme NF C 14-100.</li>
+      <li>Obtention des autorisations administratives : permissions de voirie, conventions de servitude et élagage.</li>
+      <li>Suivi des travaux et contrôles de sécurité sur chantier après une formation dédiée (équipements de protection, habilitations).</li>
+      <li>Tableau de suivi partagé avec mon tuteur et ma responsable pour piloter l’avancement.</li>
+    </ul>
+    <div class="result"><p>Quand un propriétaire a refusé de signer une convention de servitude alors que les travaux de la collectivité allaient commencer, nous avons fait réaliser en urgence une nouvelle étude, avec une solution technique qui évitait son terrain. 22 raccordements sur 24 ont été réalisés, le client s’est dit satisfait du suivi, et j’ai documenté les deux derniers dossiers pour la personne qui a repris le projet.</p></div>
+    <ul class="tags"><li>Réseau de distribution</li><li>NF C 14-100</li><li>Gestion de projet</li><li>Relation client</li><li>Sécurité chantier</li></ul>
+  </article>
+
+
+  <h3 class="group-title" id="recherche">Recherche</h3>
   <article class="project">
     <h3>Capture du CO₂ : projet de recherche à Coimbra</h3>
     <p class="ctx">Département d’ingénierie mécanique, université de Coimbra (Portugal), projet de recherche mené au cours d’un stage d’un mois en 2025</p>
@@ -258,21 +316,8 @@ Q_mem &lt;= AC_interne when store = '1' else (others =&gt; 'Z');  -- sortie troi
     <ul class="tags"><li>MATLAB</li><li>Acquisition de données</li><li>NI USB-6001</li><li>Modélisation 3D</li><li>Protocoles de test</li><li>Anglais</li></ul>
   </article>
 
-  <article class="project">
-    <h3>Raccordement électrique d’une ligne de bus à haut niveau de service</h3>
-    <p class="ctx">Enedis, chargé de projets branchement en alternance, pendant plus d’un an (2024–2025)</p>
-    <p>J’ai piloté en binôme le raccordement au réseau de distribution des équipements d’une nouvelle ligne de bus électrique : abris-bus, caméras de vidéosurveillance et borne de recharge pour véhicule électrique. Au total, 24 dossiers de raccordement suivis en parallèle pour une collectivité.</p>
-    <ul>
-      <li>Pré-études sur la cartographie du réseau, puis sur le terrain avec le client et l’entreprise prestataire, pour vérifier la faisabilité de chaque raccordement.</li>
-      <li>Création des dossiers et des devis, commande et validation des études techniques selon la norme NF C 14-100.</li>
-      <li>Obtention des autorisations administratives : permissions de voirie, conventions de servitude et élagage.</li>
-      <li>Suivi des travaux et contrôles de sécurité sur chantier après une formation dédiée (équipements de protection, habilitations).</li>
-      <li>Tableau de suivi partagé avec mon tuteur et ma responsable pour piloter l’avancement.</li>
-    </ul>
-    <div class="result"><p>Quand un propriétaire a refusé de signer une convention de servitude alors que les travaux de la collectivité allaient commencer, nous avons fait réaliser en urgence une nouvelle étude, avec une solution technique qui évitait son terrain. 22 raccordements sur 24 ont été réalisés, le client s’est dit satisfait du suivi, et j’ai documenté les deux derniers dossiers pour la personne qui a repris le projet.</p></div>
-    <ul class="tags"><li>Réseau de distribution</li><li>NF C 14-100</li><li>Gestion de projet</li><li>Relation client</li><li>Sécurité chantier</li></ul>
-  </article>
 
+  <h3 class="group-title" id="automatisation">Automatisation et données</h3>
   <article class="project">
     <h3>Automatisation d’un traitement de données en VBA</h3>
     <p class="ctx">Enedis, projet informatique réalisé en un mois</p>
@@ -288,31 +333,8 @@ Q_mem &lt;= AC_interne when store = '1' else (others =&gt; 'Z');  -- sortie troi
     <ul class="tags"><li>VBA</li><li>Excel</li><li>Automatisation</li><li>Analyse du besoin</li></ul>
   </article>
 
-  <article class="project">
-    <h3>Pilotage d’un afficheur LCD sur STM32</h3>
-    <p class="ctx">BUT GEII, TP sur carte Nucleo-F401RE</p>
-    <p>J’ai écrit, sans bibliothèque toute faite, le pilote d’un afficheur LCD 2 × 16 caractères (contrôleur HD44780) en mode 4 bits : chaque octet est envoyé en deux quartets, ce qui économise quatre broches du microcontrôleur.</p>
-    <ul>
-      <li>Séquence d’initialisation imposée par le contrôleur pour passer en mode 4 bits.</li>
-      <li>Distinction entre commandes et caractères avec la ligne RS, validation des données par une impulsion sur EN.</li>
-      <li>Fonctions d’affichage d’un caractère et d’une chaîne, et accès direct aux registres du port GPIO.</li>
-    </ul>
-    <details>
-      <summary>Voir le code d’envoi d’un quartet</summary>
-      <div>
-<pre><code>static void lcd_write_nibble(uint8_t nibble)
-{
-    const uint32_t bits = nibble &amp; LCD_DATA_MASK;     /* D4..D7 = PA4..PA7 */
-    GPIOA-&gt;BSRR = ((LCD_DATA_MASK &amp; ~bits) &lt;&lt; 16) | bits;
-    WriteEnable();
-}</code></pre>
-        <p>Le registre BSRR met certaines broches à 1 et d’autres à 0 en une seule écriture, sans toucher au reste du port.</p>
-      </div>
-    </details>
-    <a class="code-link" href="https://github.com/KayilanM/projet-STM32-afficheur-LCD" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Voir le code sur GitHub</a>
-    <ul class="tags"><li>C</li><li>STM32</li><li>Registres GPIO</li><li>HD44780</li></ul>
-  </article>
 
+  <h3 class="group-title" id="electronique">Électronique et radiofréquence</h3>
   <div class="minor">
     <h3>Luxmètre à microcontrôleur PIC</h3>
     <p class="ctx">BUT GEII, 1<sup>re</sup> année</p>
@@ -339,6 +361,7 @@ Q_mem &lt;= AC_interne when store = '1' else (others =&gt; 'Z');  -- sortie troi
     <p>Conception d’un thermomètre utilisant une diode comme capteur (environ −2 mV/°C) : polarisation du capteur, compensation par potentiomètre et amplification du signal pour obtenir une tension lisible au voltmètre. Circuits dimensionnés et simulés sous Micro-Cap.</p>
     <ul class="tags"><li>Électronique analogique</li><li>Conditionnement du signal</li><li>Micro-Cap</li></ul>
   </div>
+
 </section>
 
 <section id="parcours">
